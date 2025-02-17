@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food & Cocktail Explorer</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+    <div id="app" v-cloak>
+        <!-- Navigation -->
+        <nav class="glass-effect shadow-lg sticky top-0 z-80">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <h1
+                            class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+                            Food & Cocktail Explorer
+                        </h1>
+                    </div>
+                    <div v-if="selectedService" class="flex items-center">
+                        <button @click="selectedService = null"
+                            class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:opacity-90 transition duration-300">
+                            กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- Service Selection -->
+            <div v-if="!selectedService" class="flex flex-col items-center">
+                <h2 class="text-4xl font-extrabold text-gray-800 mb-6">คุณอยากสำรวจอะไร?</h2>
+                <p class="text-lg text-gray-600 mb-8">เลือกดูสูตรอาหารหรือค็อกเทลที่คุณสนใจ</p>
+
+                <div class="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
+                    <!-- Meals Card -->
+                    <div @click="selectService('meals')"
+                        class="relative card-hover bg-white rounded-xl shadow-xl p-8 cursor-pointer overflow-hidden group">
+                        <div class="relative text-center">
+                            <div
+                                class="w-24 h-24 mx-auto bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mb-6">
+                                <i class="fas fa-utensils text-4xl text-white"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4 group-hover:text-orange-600 transition">
+                                ค้นหาสูตรอาหาร
+                            </h2>
+                            <p class="text-gray-600">ค้นพบสูตรอาหารจากทั่วโลก พร้อมวิธีทำแบบละเอียด</p>
+                        </div>
+                    </div>
+
+                    <!-- Cocktails Card -->
+                    <div @click="selectService('cocktails')"
+                        class="relative card-hover bg-white rounded-xl shadow-xl p-8 cursor-pointer overflow-hidden group">
+                        <div class="relative text-center">
+                            <div
+                                class="w-24 h-24 mx-auto bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center mb-6">
+                                <i class="fas fa-cocktail text-4xl text-white"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4 group-hover:text-purple-600 transition">
+                                ค้นหาค็อกเทล
+                            </h2>
+                            <p class="text-gray-600">เลือกดูสูตรค็อกเทลและวิธีผสมจากทั่วโลก</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Include Meals and Cocktails sections -->
+            <div v-if="selectedService === 'meals'" class="space-y-8">
+                <!-- Meals Section Content -->
+                <!-- Search and Filter Section -->
+                <div class="glass-effect rounded-xl shadow-lg p-6">
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <!-- Search Bar -->
+                        <div class="relative">
+                            <input v-model="mealSearch" @keyup.enter="searchMeals"
+                                class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 pl-10"
+                                placeholder="ค้นหาอาหาร...">
+                            <i
+                                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <!-- Filter Buttons -->
+                        <div class="flex gap-2">
+                            <button @click="showFilters = !showFilters"
+                                class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-300">
+                                <i class="fas fa-filter mr-2"></i>ตัวกรอง
+                            </button>
+                            <button @click="getRandomMeal"
+                                class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition duration-300">
+                                <i class="fas fa-random mr-2"></i>สุ่มเมนู
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Expanded Filters -->
+                    <div v-if="showFilters" class="space-y-4">
+                        <!-- Categories -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">หมวดหมู่</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button v-for="category in mealCategories" @click="selectMealCategory(category)"
+                                    :key="category" :class="['px-4 py-2 rounded-full text-sm transition duration-300',
+                                            selectedMealCategory === category 
+                                            ? 'bg-orange-500 text-white' 
+                                            : 'bg-gray-200 hover:bg-gray-300']">
+                                    {{ category }}
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Areas/Countries -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">ประเทศ</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button v-for="area in areas" @click="selectArea(area)" :key="area" :class="['px-4 py-2 rounded-full text-sm transition duration-300',
+                                            selectedArea === area 
+                                            ? 'bg-purple-500 text-white' 
+                                            : 'bg-gray-200 hover:bg-gray-300']">
+                                    {{ area }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div v-for="meal in meals" :key="meal.idMeal"
+                        class="card-hover bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="relative">
+                            <img :src="meal.strMealThumb" :alt="meal.strMeal" class="w-full h-56 object-cover">
+                            <div class="absolute top-2 right-2">
+                                <span class="px-3 py-1 bg-black bg-opacity-70 text-white rounded-full text-sm">
+                                    {{ meal.strArea }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">{{
+                                meal.strMeal }}</h3>
+                            <p class="text-gray-600 mb-4">{{
+                                meal.strCategory }}</p>
+                            <button @click="showMealDetails(meal)"
+                                class="w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:opacity-90 transition duration-300">
+                                ดูรายละเอียด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="meals-section"></div>
+            </div>
+
+            <div v-if="selectedService === 'cocktails'" class="space-y-8">
+                <!-- Cocktails Section Content -->
+                <!-- Search and Filter Section -->
+                <div class="glass-effect rounded-xl shadow-lg p-6">
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <!-- Search Bar -->
+                        <div class="relative">
+                            <input v-model="cocktailSearch" @keyup.enter="searchCocktails"
+                                class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500 pl-10"
+                                placeholder="ค้นหาค็อกเทล...">
+                            <i
+                                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <!-- Filter Buttons -->
+                        <div class="flex gap-2">
+                            <button @click="showFilters = !showFilters"
+                                class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition duration-300">
+                                <i class="fas fa-filter mr-2"></i>ตัวกรอง
+                            </button>
+                            <button @click="getRandomCocktail"
+                                class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition duration-300">
+                                <i class="fas fa-random mr-2"></i>สุ่มค็อกเทล
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Expanded Filters -->
+                    <div v-if="showFilters" class="space-y-4">
+                        <!-- Categories -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">หมวดหมู่</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button v-for="category in cocktailCategories"
+                                    @click="selectedCocktailCategory = selectedCocktailCategory === category ? null : category; searchCocktails()"
+                                    :key="category" :class="['px-4 py-2 rounded-full text-sm transition duration-300',
+                        selectedCocktailCategory === category 
+                        ? 'bg-purple-500 text-white' 
+                        : 'bg-gray-200 hover:bg-gray-300']">
+                                    {{ category }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div v-for="cocktail in cocktails" :key="cocktail.idDrink"
+                        class="card-hover bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="relative">
+                            <img :src="cocktail.strDrinkThumb" :alt="cocktail.strDrink"
+                                class="w-full h-56 object-cover">
+                            <div class="absolute top-2 right-2">
+                                <span class="px-3 py-1 bg-black bg-opacity-70 text-white rounded-full text-sm">
+                                    {{ cocktail.strCategory }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ cocktail.strDrink }}</h3>
+                            <p class="text-gray-600 mb-4">{{ cocktail.strAlcoholic }}</p>
+                            <button @click="showCocktailDetails(cocktail)"
+                                class="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:opacity-90 transition duration-300">
+                                ดูรายละเอียด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="cocktails-section"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Templates -->
+    <script type="text/x-template" id="meals-template">
+        <div>
+            <!-- Search and Filter Section -->
+            <div class="glass-effect rounded-xl shadow-lg p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <!-- Search Bar -->
+                    <div class="relative">
+                        <input v-model="mealSearch"
+                            @keyup.enter="searchMeals"
+                            class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 pl-10"
+                            placeholder="ค้นหาอาหาร...">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <!-- Filter Buttons -->
+                    <div class="flex gap-2">
+                        <button @click="showFilters = !showFilters"
+                            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-300">
+                            <i class="fas fa-filter mr-2"></i>ตัวกรอง
+                        </button>
+                        <button @click="getRandomMeal"
+                            class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition duration-300">
+                            <i class="fas fa-random mr-2"></i>สุ่มเมนู
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Expanded Filters -->
+                <div v-if="showFilters" class="space-y-4">
+                    <!-- Categories -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">หมวดหมู่</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button v-for="category in mealCategories"
+                                @click="selectMealCategory(category)"
+                                :key="category"
+                                :class="['px-4 py-2 rounded-full text-sm transition duration-300',
+                                        selectedMealCategory === category 
+                                        ? 'bg-orange-500 text-white' 
+                                        : 'bg-gray-200 hover:bg-gray-300']">
+                                {{ category }}
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Areas/Countries -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">ประเทศ</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button v-for="area in areas"
+                                @click="selectArea(area)"
+                                :key="area"
+                                :class="['px-4 py-2 rounded-full text-sm transition duration-300',
+                                        selectedArea === area 
+                                        ? 'bg-purple-500 text-white' 
+                                        : 'bg-gray-200 hover:bg-gray-300']">
+                                {{ area }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div v-for="meal in meals"
+                    :key="meal.idMeal"
+                    class="card-hover bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="relative">
+                        <img :src="meal.strMealThumb"
+                            :alt="meal.strMeal"
+                            class="w-full h-56 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <span class="px-3 py-1 bg-black bg-opacity-70 text-white rounded-full text-sm">
+                                {{ meal.strArea }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">{{ meal.strMeal }}</h3>
+                        <p class="text-gray-600 mb-4">{{ meal.strCategory }}</p>
+                        <button @click="showMealDetails(meal)"
+                            class="w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:opacity-90 transition duration-300">
+                            ดูรายละเอียด
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meal Details Modal -->
+            <div v-if="selectedMeal" 
+                class="fixed inset-0 flex items-center justify-center p-4 z-[70] bg-gray-100 bg-opacity-90"
+                @click.self="selectedMeal = null">
+                <!-- Modal content -->
+                <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+                    <div class="p-6">
+                        <!-- Header -->
+                        <div class="flex justify-between items-start mb-6 sticky top-0 bg-white pt-2 z-30">
+                            <div>
+                                <h3 class="text-3xl font-bold text-gray-800">{{ selectedMeal.strMeal }}</h3>
+                                <div class="flex gap-2 mt-2">
+                                    <span class="px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-sm">
+                                        {{ selectedMeal.strCategory }}
+                                    </span>
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">
+                                        {{ selectedMeal.strArea }}
+                                    </span>
+                                </div>
+                            </div>
+                            <button @click="selectedMeal = null" 
+                                    class="text-gray-500 hover:text-gray-700 p-2">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                                       </div>
+            
+                            <!-- Content Grid -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                                <!-- Left Column -->
+                                <div>
+                                    <img :src="selectedMeal.strMealThumb"
+                                        :alt="selectedMeal.strMeal"
+                                        class="w-full h-72 object-cover rounded-xl mb-6">
+            
+                                    <!-- YouTube Video -->
+                                    <div v-if="selectedMeal.strYoutube" class="mb-6">
+                                        <h4 class="text-xl font-semibold mb-3">วิดีโอสอนทำอาหาร</h4>
+                                        <div class="relative pt-[56.25%]">
+                                            <iframe :src="getYoutubeEmbedUrl(selectedMeal.strYoutube)"
+                                                class="absolute inset-0 w-full h-full rounded-lg"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen>
+                                            </iframe>
+                                        </div>
+                                    </div>
+                                </div>
+            
+                                <!-- Right Column -->
+                                <div class="space-y-6">
+                                    <!-- Ingredients -->
+                                    <div>
+                                        <h4 class="text-xl font-semibold mb-3">วัตถุดิบ</h4>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div v-for="ingredient in getMealIngredients(selectedMeal)"
+                                                :key="ingredient.name"
+                                                class="flex items-center p-2 bg-gray-50 rounded-lg">
+                                                <img :src="getIngredientImageUrl(ingredient.name)"
+                                                    :alt="ingredient.name"
+                                                    class="w-12 h-12 object-cover rounded-lg mr-3">
+                                                <div>
+                                                    <p class="font-medium">{{ ingredient.name }}</p>
+                                                    <p class="text-sm text-gray-600">{{ ingredient.measure }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+            
+                                    <!-- Instructions -->
+                                    <div>
+                                        <h4 class="text-xl font-semibold mb-3">วิธีทำ</h4>
+                                        <div class="space-y-4">
+                                            <div v-for="(step, index) in getInstructionSteps(selectedMeal.strInstructions)"
+                                                :key="index"
+                                                class="flex gap-4 p-4 bg-gray-50 rounded-lg">
+                                                <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">
+                                                    {{ index + 1 }}
+                                                </div>
+                                                <p class="text-gray-700">{{ step }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="cocktails-template">
+        <div>
+            <!-- Search and Filter Section -->
+            <div class="glass-effect rounded-xl shadow-lg p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <!-- Search Bar -->
+                    <div class="relative">
+                        <input v-model="cocktailSearch"
+                            @keyup.enter="searchCocktails"
+                            class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500 pl-10"
+                            placeholder="ค้นหาค็อกเทล...">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <!-- Filter Buttons -->
+                    <div class="flex gap-2">
+                        <button @click="showFilters = !showFilters"
+                            class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition duration-300">
+                            <i class="fas fa-filter mr-2"></i>ตัวกรอง
+                        </button>
+                        <button @click="getRandomCocktail"
+                            class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition duration-300">
+                            <i class="fas fa-random mr-2"></i>สุ่มค็อกเทล
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Expanded Filters -->
+                <div v-if="showFilters" class="space-y-4">
+                    <!-- Categories -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">หมวดหมู่</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button v-for="category in cocktailCategories"
+                                @click="selectedCocktailCategory = selectedCocktailCategory === category ? null : category; searchCocktails()"
+                                :key="category"
+                                :class="['px-4 py-2 rounded-full text-sm transition duration-300',
+                                selectedCocktailCategory === category 
+                                ? 'bg-purple-500 text-white' 
+                                : 'bg-gray-200 hover:bg-gray-300']">
+                                {{ category }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div v-for="cocktail in cocktails"
+                    :key="cocktail.idDrink"
+                    class="card-hover bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="relative">
+                        <img :src="cocktail.strDrinkThumb"
+                            :alt="cocktail.strDrink"
+                            class="w-full h-56 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <span class="px-3 py-1 bg-black bg-opacity-70 text-white rounded-full text-sm">
+                                {{ cocktail.strCategory }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">{{ cocktail.strDrink }}</h3>
+                        <p class="text-gray-600 mb-4">{{ cocktail.strAlcoholic }}</p>
+                        <button @click="showCocktailDetails(cocktail)"
+                            class="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:opacity-90 transition duration-300">
+                            ดูรายละเอียด
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cocktail Details Modal -->
+            <div v-if="selectedCocktail" 
+                class="fixed inset-0 flex items-center justify-center p-4 z-[60] bg-gray-100 bg-opacity-90"
+                @click.self="selectedCocktail = null">
+                <!-- Modal content -->
+                <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                    <div class="p-6">
+                        <!-- Header -->
+                        <div class="flex justify-between items-start mb-6 bg-white pt-2">
+                            <div>
+                                <h3 class="text-3xl font-bold text-gray-800">{{ selectedCocktail.strDrink }}</h3>
+                                <div class="flex gap-2 mt-2">
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">
+                                        {{ selectedCocktail.strCategory }}
+                                    </span>
+                                    <span class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm">
+                                        {{ selectedCocktail.strAlcoholic }}
+                                    </span>
+                                </div>
+                            </div>
+                            <button @click="selectedCocktail = null"
+                                    class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+            
+                        <!-- Content Grid -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Left Column -->
+                            <div>
+                                <img :src="selectedCocktail.strDrinkThumb"
+                                    :alt="selectedCocktail.strDrink"
+                                    class="w-full h-72 object-cover rounded-xl mb-6">
+            
+                                <div class="mb-6">
+                                    <h4 class="text-xl font-semibold mb-3">แก้วที่ใช้</h4>
+                                    <p class="text-gray-700">{{ selectedCocktail.strGlass }}</p>
+                                </div>
+                            </div>
+            
+                            <!-- Right Column -->
+                            <div class="space-y-6">
+                                <!-- Ingredients -->
+                                <div>
+                                    <h4 class="text-xl font-semibold mb-3">ส่วนผสม</h4>
+                                    <div class="space-y-2">
+                                        <div v-for="ingredient in getCocktailIngredients(selectedCocktail)"
+                                            :key="ingredient.name"
+                                            class="flex items-center p-2 bg-gray-50 rounded-lg">
+                                            <img :src="getCocktailIngredientImageUrl(ingredient.name)"
+                                                :alt="ingredient.name"
+                                                class="w-12 h-12 object-cover rounded-lg mr-3">
+                                            <div>
+                                                <p class="font-medium">{{ ingredient.name }}</p>
+                                                <p class="text-sm text-gray-600">{{ ingredient.measure }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+            
+                                <!-- Instructions -->
+                                <div>
+                                    <h4 class="text-xl font-semibold mb-3">วิธีทำ</h4>
+                                    <p class="text-gray-700">{{ selectedCocktail.strInstructions }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
