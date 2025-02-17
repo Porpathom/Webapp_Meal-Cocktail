@@ -96,14 +96,19 @@ createApp({
             }
         },
         async showMealDetails(meal) {
+            console.log("1. Function called with meal:", meal);
             try {
-                const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`)
-                const data = await response.json()
-                this.selectedMeal = data.meals[0]
+                const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`);
+                console.log("2. API Response:", response);
+                const data = await response.json();
+                console.log("3. Data received:", data);
+                this.selectedMeal = data.meals[0];
+                console.log("4. Selected meal set:", this.selectedMeal);
             } catch (error) {
-                console.error('Error loading meal details:', error)
+                console.error('Error loading meal details:', error);
             }
         },
+        
         selectMealCategory(category) {
             this.selectedMealCategory = this.selectedMealCategory === category ? null : category
             this.selectedArea = null
