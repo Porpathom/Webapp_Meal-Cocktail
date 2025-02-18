@@ -3,6 +3,7 @@ const { createApp } = Vue
 createApp({
     data() {
         return {
+            scrolled: false,
             selectedService: null,
             showFilters: false,
             // Meals data
@@ -29,6 +30,19 @@ createApp({
         }
     },
     methods: {
+        handleScroll() {
+            this.scrolled = window.scrollY > 20; // เปลี่ยนสถานะเมื่อ scroll เกิน 20px
+        },
+        selectService(service) {
+            this.selectedService = service
+            if (service === 'meals') {
+                this.loadMealCategories()
+                this.loadAreas()
+            } else if (service === 'cocktails') {
+                this.loadCocktailCategories()
+            }
+        },
+
         selectService(service) {
             this.selectedService = service
             if (service === 'meals') {
@@ -244,10 +258,18 @@ createApp({
         }
     },
     mounted() {
+        
+        window.addEventListener('scroll', this.handleScroll);
+        
+        
         if (this.selectedService === 'meals') {
             this.searchMeals()
         } else if (this.selectedService === 'cocktails') {
             this.searchCocktails()
         }
+    },
+    unmounted() {
+        
+        window.removeEventListener('scroll', this.handleScroll);
     }
 }).mount('#app')
