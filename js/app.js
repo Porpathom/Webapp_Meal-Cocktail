@@ -17,6 +17,7 @@ createApp({
             cocktailSearch: '',
             cocktails: [],
             selectedCocktail: null,
+            cocktailAbortController: null,
             cocktailCategories: [],
             selectedCocktailCategory: null,
             cocktailTypes: [],
@@ -172,32 +173,37 @@ createApp({
         },
         async searchCocktails() {
             try {
-                let url
-                if (this.cocktailSearch) {
-                    url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${this.cocktailSearch}`
-                } else if (this.selectedCocktailCategory) {
-                    url = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=${this.selectedCocktailCategory}`
-                } else {
-                    url = 'https://www.thecocktaildb.com/api/json/v1/1/random.php'
-                }
-                const response = await fetch(url)
-                const data = await response.json()
-                this.cocktails = data.drinks || []
-
-                // Fetch full details for filtered results
+                let url = this.cocktailSearch 
+                    ? `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${this.cocktailSearch}`
+                    : this.selectedCocktailCategory 
+                    ? `https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=${this.selectedCocktailCategory}`
+                    : 'https://www.thecocktaildb.com/api/json/v1/1/random.php';
+        
+                console.log("Fetching:", url);
+                const response = await fetch(url);
+                const data = await response.json();
+                this.cocktails = data.drinks || [];
+                this.cocktails = [...this.cocktails];  
+                this.$forceUpdate(); 
+        
                 if (this.selectedCocktailCategory) {
-                    this.cocktails = await Promise.all(
-                        this.cocktails.map(async (cocktail) => {
-                            const detailResponse = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${cocktail.idDrink}`)
-                            const detailData = await detailResponse.json()
-                            return detailData.drinks[0]
-                        })
-                    )
+                    let detailedCocktails = [];
+                    for (let cocktail of this.cocktails) {
+                        console.log(`Fetching details for: ${cocktail.strDrink}`);
+                        const detailResponse = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${cocktail.idDrink}`);
+                        const detailData = await detailResponse.json();
+                        if (detailData.drinks && detailData.drinks.length > 0) {
+                            detailedCocktails.push(detailData.drinks[0]);
+                        }
+                    }
+                    this.cocktails = detailedCocktails;
                 }
             } catch (error) {
-                console.error('Error searching cocktails:', error)
+                console.error('Error searching cocktails:', error);
             }
         },
+        
+        
         async showCocktailDetails(cocktail) {
             try {
                 const response = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${cocktail.idDrink}`)
