@@ -8,64 +8,63 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-
 </head>
-   <body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
-      <div id="app" v-cloak>
-          <!-- Navigation -->
-          <nav :class="['fixed', 'top-0', 'z-50', 'transition-all', 'duration-300', 'w-full', 'glass-effect', scrolled ? 'nav-scroll' : '']">
-              <div class="max-w-7xl mx-auto px-4">
-                  <div class="flex justify-between h-16">
-                      <div class="flex items-center">
-                          <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 logo-text">
-                              Food & Cocktail Explorer
-                          </h1>
-                      </div>
-                      <div v-if="selectedService" class="flex items-center">
-                          <button @click="selectedService = null"
-                              class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:opacity-90 transition duration-300 shadow-lg hover:shadow-xl">
-                              กลับหน้าหลัก
-                          </button>
-                      </div>
-                  </div>
-              </div>
-          </nav>
-          
-         <div class="h-16"></div>
-         <!-- Main Content -->
-         <main class="max-w-7xl mx-auto px-4 py-6">
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+    <div id="app" v-cloak>
+        <!-- Navigation -->
+        <nav :class="['fixed', 'top-0', 'z-50', 'transition-all', 'duration-300', 'w-full', 'glass-effect', scrolled ? 'nav-scroll' : '']">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 logo-text">
+                           The Culinary & Cocktail Hub
+                        </h1>
+                    </div>
+                    <div v-if="selectedService" class="flex items-center">
+                        <button @click="selectedService = null"
+                            class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:opacity-90 transition duration-300 shadow-lg hover:shadow-xl">
+                            Back Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="h-16"></div>
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-6">
             <!-- Service Selection -->
             <div v-if="!selectedService" class="flex flex-col items-center">
-               <h2 class="text-4xl font-extrabold text-gray-800 mb-6">คุณอยากสำรวจอะไร?</h2>
-               <p class="text-lg text-gray-600 mb-8">เลือกดูสูตรอาหารหรือค็อกเทลที่คุณสนใจ</p>
-               <div class="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
-                  <!-- Meals Card -->
-                  <div @click="selectService('meals')"
-                     class="relative card-hover bg-white rounded-xl shadow-xl p-8 cursor-pointer overflow-hidden group">
-                     <div class="relative text-center">
-                        <div class="w-24 h-24 mx-auto bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mb-6">
-                           <i class="fas fa-utensils text-4xl text-white"></i>
+                <h2 class="text-4xl font-extrabold text-gray-800 mb-6">พร้อมเปิดประสบการณ์ความอร่อยหรือยัง?</h2>
+                <p class="text-lg text-gray-600 mb-8">สำรวจสูตรอาหารและค็อกเทลสุดพิเศษจากทั่วโลก ค้นพบรสชาติใหม่ ๆ และสร้างสรรค์เมนูในแบบของคุณ!</p>
+                <div class="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
+                    <!-- Meals Card -->
+                    <div @click="selectService('meals')"
+                        class="relative card-hover bg-white rounded-xl shadow-xl p-8 cursor-pointer overflow-hidden group">
+                        <div class="relative text-center">
+                            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mb-6">
+                                <i class="fas fa-utensils text-4xl text-white"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4 group-hover:text-orange-600 transition">
+                                ค้นหาสูตรอาหาร
+                            </h2>
+                            <p class="text-gray-600">พบกับสูตรอาหารอร่อย ๆ จากทั่วโลก พร้อมวิธีทำแบบละเอียดให้คุณทำตามได้ง่าย ๆ</p>
                         </div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4 group-hover:text-orange-600 transition">
-                           ค้นหาสูตรอาหาร
-                        </h2>
-                        <p class="text-gray-600">ค้นพบสูตรอาหารจากทั่วโลก พร้อมวิธีทำแบบละเอียด</p>
-                     </div>
-                  </div>
-                  <!-- Cocktails Card -->
-                  <div @click="selectService('cocktails')"
-                     class="relative card-hover bg-white rounded-xl shadow-xl p-8 cursor-pointer overflow-hidden group">
-                     <div class="relative text-center">
-                        <div class="w-24 h-24 mx-auto bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center mb-6">
-                           <i class="fas fa-cocktail text-4xl text-white"></i>
+                    </div>
+                    <!-- Cocktails Card -->
+                    <div @click="selectService('cocktails')"
+                        class="relative card-hover bg-white rounded-xl shadow-xl p-8 cursor-pointer overflow-hidden group">
+                        <div class="relative text-center">
+                            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center mb-6">
+                                <i class="fas fa-cocktail text-4xl text-white"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4 group-hover:text-purple-600 transition">
+                                ค้นหาค็อกเทล
+                            </h2>
+                            <p class="text-gray-600">ดื่มด่ำไปกับสูตรค็อกเทลสุดพิเศษ พร้อมวิธีผสมที่ทำได้เองง่าย ๆ ที่บ้าน</p>
                         </div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4 group-hover:text-purple-600 transition">
-                           ค้นหาค็อกเทล
-                        </h2>
-                        <p class="text-gray-600">เลือกดูสูตรค็อกเทลและวิธีผสมจากทั่วโลก</p>
-                     </div>
-                  </div>
-               </div>
+                    </div>
+                </div>
             </div>
             <!-- Meals Section -->
             <div v-if="selectedService === 'meals'" class="space-y-8">
