@@ -32,7 +32,9 @@ createApp({
     methods: {
         handleScroll() {
             this.scrolled = window.scrollY > 20;
+            console.log("Scrolled:", this.scrolled, "ScrollY:", window.scrollY);
         },
+
         selectService(service) {
             this.selectedService = service
             if (service === 'meals') {
@@ -260,7 +262,8 @@ createApp({
     mounted() {
         
         window.addEventListener('scroll', this.handleScroll);
-        
+
+        this.handleScroll();
         
         if (this.selectedService === 'meals') {
             this.searchMeals()
@@ -269,7 +272,6 @@ createApp({
         }
     },
     unmounted() {
-        
         window.removeEventListener('scroll', this.handleScroll);
-    }
+      }
 }).mount('#app')
