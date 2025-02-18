@@ -31,7 +31,7 @@ createApp({
     },
     methods: {
         handleScroll() {
-            this.scrolled = window.scrollY > 20; // เปลี่ยนสถานะเมื่อ scroll เกิน 20px
+            this.scrolled = window.scrollY > 20;
         },
         selectService(service) {
             this.selectedService = service
